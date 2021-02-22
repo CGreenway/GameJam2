@@ -66,11 +66,15 @@ void AGameJam2Character::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAxis("MoveRight", this, &AGameJam2Character::MoveRight);
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AGameJam2Character::ShootPressed);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AGameJam2Character::ShootReleased);
+	PlayerInputComponent->BindAction("SelectPistol", IE_Pressed, this, &AGameJam2Character::SelectPistol);
+	PlayerInputComponent->BindAction("SelectAK", IE_Pressed, this, &AGameJam2Character::SelectAK);
+	PlayerInputComponent->BindAction("SelectSMG", IE_Pressed, this, &AGameJam2Character::SelectSMG);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AGameJam2Character::Reload);
 }
 
 void AGameJam2Character::Tick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
+	Super::Tick(DeltaSeconds);
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		FHitResult TraceHitResult;
@@ -84,70 +88,117 @@ void AGameJam2Character::Tick(float DeltaSeconds)
 	}
 
 	if (bShoot && bDead == false) {
-		if (bReloading == false && bShootOnCooldown == false && CurrentAmmo > 0 && CurrentAmmoInClip > 0) {
-			if (CurrentFiringMode == 0 && bShootOnce) {
+		if (CurrentWeapon == 0)
+		{
+			if (bReloading == false && CurrentPistolAmmo > 0 && CurrentAmmoInPistolClip > 0)
+			{
+				if (CurrentFiringMode == 0 && bShootOnce)
+				{
+					UWorld* World = GetWorld();
+					FActorSpawnParameters SpawnParams;
+					SpawnParams.Owner = this;
+					SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					if (CurrentProjectileClass->IsValidLowLevelFast() && MuzzleLocation->IsValidLowLevelFast())
+					{
+						FHitResult Hit;
+						UClass* GenerateBPBullet = Cast<UClass>(CurrentProjectileClass);
+						World->SpawnActor<AActor>(GenerateBPBullet, MuzzleLocation->GetComponentLocation(), MuzzleLocation->GetComponentRotation(), SpawnParams);
+						if (CurrentShootSound->IsValidLowLevelFast())
+						{
+							UGameplayStatics::PlaySoundAtLocation(this, CurrentShootSound, GetActorLocation());
+						}
+						bShootOnce = false;
+						CurrentPistolAmmo--;
+						CurrentAmmoInPistolClip--;
+						if (CurrentAmmoInPistolClip <= 0)
+						{
+							bReloading = true;
+							GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AGameJam2Character::ResetReloadTimer, ReloadSpeed, false);
+							if (CurrentReloadSound->IsValidLowLevelFast())
+							{
+								UGameplayStatics::PlaySoundAtLocation(this, CurrentReloadSound, GetActorLocation());
+							}
+						}
+						else
+						{
+							bShootOnCooldown = true;
+							GetWorld()->GetTimerManager().SetTimer(ShootSpeedTimerHandle, this, &AGameJam2Character::ResetShootSpeedTimer, ShootSpeed, false);
+						}
+					}
+				}
+			}
+		}
+		if (CurrentWeapon == 1)
+		{
+			if (bReloading == false && bShootOnCooldown == false && CurrentAKAmmo > 0 && CurrentAmmoInAKClip > 0)
+			{
 				UWorld* World = GetWorld();
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-				if (CurrentProjectileClass->IsValidLowLevelFast() && MuzzleLocation->IsValidLowLevelFast()) {
+				if (CurrentProjectileClass->IsValidLowLevelFast() && MuzzleLocation->IsValidLowLevelFast())
+				{
 					FHitResult Hit;
-					/** should be more accurate but shoots into floor??/
-					FRotator RotationTemp = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), Hit.Location);
-					MuzzleLocation->SetRelativeRotation(RotationTemp);
-					/**/
 					UClass* GeneratedBPBullet = Cast<UClass>(CurrentProjectileClass);
 					World->SpawnActor<AActor>(GeneratedBPBullet, MuzzleLocation->GetComponentLocation(), MuzzleLocation->GetComponentRotation(), SpawnParams);
-					if (CurrentShootSound->IsValidLowLevelFast()) {
+					if (CurrentShootSound->IsValidLowLevelFast())
+					{
 						UGameplayStatics::PlaySoundAtLocation(this, CurrentShootSound, GetActorLocation());
 					}
-					bShootOnce = false;
-					CurrentAmmo--;
-					CurrentAmmoInClip--;
-					if (CurrentAmmoInClip <= 0) {
+					CurrentAKAmmo--;
+					CurrentAmmoInAKClip--;
+					if (CurrentAmmoInAKClip <= 0)
+					{
 						bReloading = true;
 						GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AGameJam2Character::ResetReloadTimer, ReloadSpeed, false);
 						if (CurrentReloadSound->IsValidLowLevelFast()) {
 							UGameplayStatics::PlaySoundAtLocation(this, CurrentReloadSound, GetActorLocation());
 						}
 					}
-					else {
+					else
+					{
 						bShootOnCooldown = true;
 						GetWorld()->GetTimerManager().SetTimer(ShootSpeedTimerHandle, this, &AGameJam2Character::ResetShootSpeedTimer, ShootSpeed, false);
 					}
 				}
 			}
-			else if (CurrentFiringMode == 1) {
+
+		}
+		if (CurrentWeapon == 2)
+		{
+			if (bReloading == false && bShootOnCooldown == false && CurrentSMGAmmo > 0 && CurrentAmmoInSMGClip > 0)
+			{
 				UWorld* World = GetWorld();
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-				if (CurrentProjectileClass->IsValidLowLevelFast() && MuzzleLocation->IsValidLowLevelFast()) {
+				if (CurrentProjectileClass->IsValidLowLevelFast() && MuzzleLocation->IsValidLowLevelFast())
+				{
 					FHitResult Hit;
-					/** should be more accurate but shoots into floor??/
-					FRotator RotationTemp = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), Hit.Location);
-					MuzzleLocation->SetRelativeRotation(RotationTemp);
-					/**/
 					UClass* GeneratedBPBullet = Cast<UClass>(CurrentProjectileClass);
 					World->SpawnActor<AActor>(GeneratedBPBullet, MuzzleLocation->GetComponentLocation(), MuzzleLocation->GetComponentRotation(), SpawnParams);
-					if (CurrentShootSound->IsValidLowLevelFast()) {
+					if (CurrentShootSound->IsValidLowLevelFast())
+					{
 						UGameplayStatics::PlaySoundAtLocation(this, CurrentShootSound, GetActorLocation());
 					}
-					CurrentAmmo--;
-					CurrentAmmoInClip--;
-					if (CurrentAmmoInClip <= 0) {
+					CurrentSMGAmmo--;
+					CurrentAmmoInSMGClip--;
+					if (CurrentAmmoInSMGClip <= 0)
+					{
 						bReloading = true;
 						GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AGameJam2Character::ResetReloadTimer, ReloadSpeed, false);
 						if (CurrentReloadSound->IsValidLowLevelFast()) {
 							UGameplayStatics::PlaySoundAtLocation(this, CurrentReloadSound, GetActorLocation());
 						}
 					}
-					else {
+					else
+					{
 						bShootOnCooldown = true;
-						GetWorld()->GetTimerManager().SetTimer(ShootSpeedTimerHandle, this, &AGameJam2Character::ResetShootSpeedTimer, ShootSpeed, false);
+						GetWorld()->GetTimerManager().SetTimer(ShootSpeedTimerHandle, this, &AGameJam2Character::ResetShootSpeedTimer, SMGShootSpeed, false);
 					}
 				}
 			}
+
 		}
 	}
 }
@@ -183,15 +234,47 @@ void AGameJam2Character::ResetShootSpeedTimer()
 
 void AGameJam2Character::ResetReloadTimer()
 {
-	if (CurrentAmmo >= CurrentClipSize) {
-		CurrentAmmoInClip = CurrentClipSize;
+	if (CurrentWeapon == 0)
+	{
+		if (CurrentPistolAmmo >= CurrentPistolClipSize) 
+		{
+			CurrentAmmoInPistolClip = CurrentPistolClipSize;
+		}
+		else if (CurrentPistolAmmo < CurrentPistolClipSize && CurrentPistolAmmo > 0) 
+		{
+			CurrentAmmoInPistolClip = CurrentPistolAmmo;
+		}
+		bReloading = false;
+		GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 	}
-	else if (CurrentAmmo < CurrentClipSize && CurrentAmmo > 0) {
-		CurrentAmmoInClip = CurrentAmmo;
+	else if (CurrentWeapon == 1)
+	{
+		if (CurrentAKAmmo >= CurrentAKClipSize)
+		{
+			CurrentAmmoInAKClip = CurrentAKClipSize;
+		}
+		else if (CurrentAKAmmo < CurrentAKClipSize && CurrentAKAmmo > 0)
+		{
+			CurrentAmmoInAKClip = CurrentAKAmmo;
+		}
+		bReloading = false;
+		GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 	}
-	bReloading = false;
-	GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
+	else if (CurrentWeapon == 2)
+	{
+		if (CurrentSMGAmmo >= CurrentSMGClipSize)
+		{
+			CurrentAmmoInSMGClip = CurrentSMGClipSize;
+		}
+		else if (CurrentSMGAmmo < CurrentSMGClipSize && CurrentSMGAmmo > 0)
+		{
+			CurrentAmmoInSMGClip = CurrentSMGAmmo;
+		}
+		bReloading = false;
+		GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
+	}
 }
+
 
 void AGameJam2Character::MoveForward(float Value)
 {
@@ -232,3 +315,28 @@ void AGameJam2Character::ShootReleased()
 {
 	this->bShoot = false;
 }
+
+void AGameJam2Character::SelectPistol()
+{
+	CurrentWeapon = 0;
+	CurrentFiringMode = 0;
+}
+
+void AGameJam2Character::SelectAK()
+{
+	CurrentWeapon = 1;
+	CurrentFiringMode = 1;
+}
+
+void AGameJam2Character::SelectSMG()
+{
+	CurrentWeapon = 2;
+	CurrentFiringMode = 1;
+}
+
+void AGameJam2Character::Reload()
+{
+	bReloading = true;
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AGameJam2Character::ResetReloadTimer, ReloadSpeed, false);
+}
+

@@ -49,27 +49,46 @@ public:
 
 	//Placeholder Variable for ammo, more will need to be added for different weapons
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
-	int CurrentAmmo = 50;
+	int CurrentPistolAmmo = 50;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentAKAmmo = 120;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentSMGAmmo = 80;
 
 	//Placeholder Variable for ammo, more will need to be added for different weapons
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
-	int CurrentMaxAmmo = 50;
+	int CurrentPistolMaxAmmo = 50;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentAKMaxAmmo = 120;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentSMGMaxAmmo = 80;
 
 	//Placeholder Variable for Clip size, more will need to be added for different weapons
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
-	int CurrentClipSize = 25;
+	int CurrentPistolClipSize = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentAKClipSize = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentSMGClipSize = 20;
 
 	//Placeholder Variable for Clip size, more will need to be added for different weapons
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
-	int CurrentAmmoInClip = 25;
+	int CurrentAmmoInPistolClip = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentAmmoInAKClip = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
+	int CurrentAmmoInSMGClip = 20;
 
 	//Current firing mode
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
-	int CurrentFiringMode = 1;
+	int CurrentWeapon = 0;
+	int CurrentFiringMode = 0;
+
 
 	//Used in timer to determine time between bullets
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shooting, meta = (AllowPrivateAccess = "true"))
-	float ShootSpeed = 0.2;
+	float ShootSpeed = 0.3;
+	float SMGShootSpeed = 0.05;
 	bool bShootOnCooldown;
 	FTimerHandle ShootSpeedTimerHandle;
 	void ResetShootSpeedTimer();
@@ -122,6 +141,18 @@ private:
 
 	/** Called whenever the shoot button is released */
 	void ShootReleased();
+
+	/** Called whenever 1 is pressed to select pistol */
+	void SelectPistol();
+
+	/** Called whenever 2 is pressed to select AK */
+	void SelectAK();
+
+	/** Called whenever 3 is pressed to select SMG */
+	void SelectSMG();
+
+	/** Called whenever 3 is pressed to reload current weapon */
+	void Reload();
 
 	//Shoot?
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Shooting, meta = (AllowPrivateAccess = "true"))
