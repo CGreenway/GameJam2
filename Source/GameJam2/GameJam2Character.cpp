@@ -339,3 +339,4 @@ void AGameJam2Character::Reload()
 	bReloading = true;
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AGameJam2Character::ResetReloadTimer, ReloadSpeed, false);
 }
+

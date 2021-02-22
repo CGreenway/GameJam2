@@ -29,7 +29,7 @@ AInvisibleTrap::AInvisibleTrap()
 void AInvisibleTrap::BeginPlay()
 {
 	Super::BeginPlay();
-	TrapBase->SetMaterial(0, Invisible);
+	TrapBase->SetMaterial(0, Semi);
 	TrapAnimatedMesh->SetMaterial(0, Invisible);
 }
 

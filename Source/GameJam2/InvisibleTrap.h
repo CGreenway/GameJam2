@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 		UMaterial* Visible;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true"))
+		UMaterial* Semi;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = TrapStats, meta = (AllowPrivateAccess = "true"))
 		int DamageGiven = 100;
 

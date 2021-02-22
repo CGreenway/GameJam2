@@ -83,9 +83,9 @@ void AEnemySpawner::Tick(float DeltaTime)
 		bSpawnOnCooldown = true;
 		GetWorld()->GetTimerManager().SetTimer(RepeatSpawnEnemy1Handle, this, &AEnemySpawner::ResetEnemy1RepeatTimer, IntervalBetweenRepeatSpawnsEnemy1, false);
 	}
-	else if (bStartRepeatSpawn == true && bRepeatSpawnEnemy1 == false) {
-		Destroy();
-	}
+	//else if (bStartRepeatSpawn == true && bRepeatSpawnEnemy1 == false) {
+	//	Destroy();
+	//}
 }
 
 void AEnemySpawner::OnBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
